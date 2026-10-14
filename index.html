@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#f8f4eb" />
+  <title>这都被你发现了</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f8f4eb;
+      --paper: #fffdf8;
+      --ink: #39392f;
+      --muted: #858477;
+      --accent: #758c72;
+      --accent-soft: #e9efe2;
+      --peach: #f2c8ad;
+      --line: #ebe6da;
+      --shadow: 0 18px 55px rgba(82, 73, 52, .08);
+      --font: -apple-system, BlinkMacSystemFont, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { min-height: 100%; background: var(--page); }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        radial-gradient(ellipse at 10% 8%, rgba(255,255,255,.85), transparent 33%),
+        radial-gradient(ellipse at 96% 84%, rgba(226,232,211,.56), transparent 28%),
+        var(--page);
+      color: var(--ink);
+      font-family: var(--font);
+      line-height: 1.75;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color .45s ease, color .35s ease;
+    }
+
+    body[data-theme="mint"] {
+      --page: #edf4ec; --paper: #fbfef9; --ink: #35443a; --muted: #7c8e7e;
+      --accent: #6d927b; --accent-soft: #e3efe5; --peach: #e8c9a8; --line: #e1ebe0;
+      --shadow: 0 18px 55px rgba(54, 91, 68, .08);
+    }
+    body[data-theme="peach"] {
+      --page: #fbf0e9; --paper: #fffaf6; --ink: #514038; --muted: #9a8073;
+      --accent: #b77b62; --accent-soft: #f6e5d9; --peach: #efc2a9; --line: #f0e2d8;
+      --shadow: 0 18px 55px rgba(125, 77, 55, .08);
+    }
+    body[data-theme="lavender"] {
+      --page: #f2eff8; --paper: #fdfbff; --ink: #413c50; --muted: #89839a;
+      --accent: #8176a5; --accent-soft: #ece8f6; --peach: #e2d1e8; --line: #e9e4f0;
+      --shadow: 0 18px 55px rgba(77, 64, 112, .08);
+    }
+
+    .page {
+      position: relative;
+      width: min(100%, 560px);
+      min-height: 100vh;
+      min-height: 100dvh;
+      margin: 0 auto;
+      padding: calc(26px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .tiny-label {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: .11em;
+    }
+    .theme-picker { display: flex; gap: 7px; }
+    .theme-dot {
+      width: 25px; height: 25px; padding: 0;
+      border: 2px solid var(--paper); border-radius: 50%;
+      box-shadow: 0 0 0 1px var(--line);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .theme-dot:active { transform: scale(.9); }
+    .theme-dot[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--accent); }
+    .theme-dot--cream { background: #e7d8b8; }
+    .theme-dot--mint { background: #b9d4bb; }
+    .theme-dot--peach { background: #e9bda5; }
+    .theme-dot--lavender { background: #c9bddf; }
+
+    .hero {
+      position: relative;
+      margin: clamp(30px, 8vh, 66px) 0 20px;
+      padding: 29px 23px 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.9);
+      border-radius: 28px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      text-align: center;
+      transition: background-color .35s ease, box-shadow .35s ease;
+    }
+    .hero::before, .hero::after {
+      content: ""; position: absolute; border-radius: 50%; pointer-events: none;
+      background: var(--accent-soft); opacity: .7;
+    }
+    .hero::before { width: 115px; height: 115px; top: -67px; left: -40px; }
+    .hero::after { width: 85px; height: 85px; right: -38px; bottom: 24px; background: #f8e9df; opacity: .55; }
+
+    .eyebrow {
+      position: relative; z-index: 1;
+      display: inline-flex; align-items: center; gap: 7px;
+      margin: 0 0 15px; padding: 5px 11px;
+      border-radius: 999px; background: var(--accent-soft); color: var(--accent);
+      font-size: 12px; letter-spacing: .04em;
+    }
+    .eyebrow span { font-size: 14px; }
+    h1 {
+      position: relative; z-index: 1;
+      margin: 0; font-size: clamp(34px, 9vw, 47px); line-height: 1.25;
+      font-weight: 800; letter-spacing: -.045em;
+    }
+    .intro {
+      position: relative; z-index: 1;
+      max-width: 340px; margin: 15px auto 0;
+      color: var(--muted); font-size: 15px;
+    }
+    .intro strong { color: var(--accent); font-weight: 700; }
+
+    .breathing-scene {
+      position: relative; z-index: 1;
+      display: grid; place-items: center;
+      width: 156px; height: 156px; margin: 26px auto 17px;
+    }
+    .breathing-circle {
+      position: absolute; inset: 7px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 36% 30%, #fff 0%, var(--accent-soft) 72%);
+      box-shadow: 0 10px 28px rgba(92, 111, 83, .09), inset 0 0 0 1px rgba(255,255,255,.8);
+      animation: breathe 5s ease-in-out infinite;
+    }
+    @keyframes breathe {
+      0%, 100% { transform: scale(.92); }
+      50% { transform: scale(1.04); }
+    }
+    .face {
+      position: relative; z-index: 1;
+      font-size: 59px; line-height: 1;
+      filter: drop-shadow(0 5px 7px rgba(90, 75, 50, .1));
+      animation: bob 4.2s ease-in-out infinite;
+    }
+    @keyframes bob { 0%, 100% { transform: translateY(2px) rotate(-3deg); } 50% { transform: translateY(-4px) rotate(3deg); } }
+    .orbit { position: absolute; z-index: 2; font-size: 19px; animation: bob 3.7s ease-in-out infinite reverse; }
+    .orbit--one { left: 4px; top: 29px; }
+    .orbit--two { right: 1px; bottom: 28px; animation-delay: -.8s; }
+    .breath-note { position: relative; z-index: 1; margin: 0; color: var(--muted); font-size: 12px; }
+
+    .joke-card {
+      position: relative; z-index: 1;
+      min-height: 88px; margin: 20px 0 16px; padding: 17px 18px;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      border: 1px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+      border-radius: 18px; background: color-mix(in srgb, var(--accent-soft) 50%, transparent);
+      color: var(--ink); font-size: 15px; line-height: 1.7;
+      transition: background .25s ease;
+    }
+    .joke-mark { flex: none; align-self: flex-start; font-size: 19px; }
+    .joke-text { margin: 0; }
+
+    .action-area { position: relative; z-index: 1; margin-top: 2px; }
+    .laugh-button {
+      width: 100%; min-height: 54px; padding: 13px 18px;
+      border: 0; border-radius: 17px;
+      background: var(--accent); color: #fffdf8;
+      font: 700 16px/1.4 var(--font); letter-spacing: .02em;
+      box-shadow: 0 8px 18px color-mix(in srgb, var(--accent) 24%, transparent);
+      cursor: pointer;
+      transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
+    }
+    .laugh-button:active { transform: scale(.975); filter: brightness(.96); box-shadow: 0 4px 10px color-mix(in srgb, var(--accent) 20%, transparent); }
+    .tap-count { margin: 10px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+    .tap-count strong { color: var(--accent); font-weight: 700; }
+
+    .foot {
+      margin: auto 0 0; padding-top: 27px;
+      color: var(--muted); text-align: center; font-size: 12px;
+    }
+    .foot p { margin: 0; }
+    .foot .foot-joke { margin-top: 5px; opacity: .8; }
+    .floaty {
+      position: absolute; bottom: 22px; z-index: 5;
+      pointer-events: none; font-size: 22px;
+      animation: float-away 1.25s ease-out forwards;
+    }
+    @keyframes float-away {
+      0% { opacity: 0; transform: translateY(0) rotate(-8deg) scale(.75); }
+      15% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-95px) rotate(18deg) scale(1.15); }
+    }
+
+    @media (max-width: 360px) {
+      .page { padding-left: 16px; padding-right: 16px; }
+      .hero { padding-left: 18px; padding-right: 18px; }
+      .breathing-scene { margin-top: 20px; margin-bottom: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body data-theme="cream">
+  <main class="page">
+    <div class="topline">
+      <p class="tiny-label">一个不太重要的小角落</p>
+      <div class="theme-picker" role="group" aria-label="切换页面颜色">
+        <button class="theme-dot theme-dot--cream" type="button" data-theme-choice="cream" aria-label="奶油色" aria-pressed="true"></button>
+        <button class="theme-dot theme-dot--mint" type="button" data-theme-choice="mint" aria-label="薄荷绿" aria-pressed="false"></button>
+        <button class="theme-dot theme-dot--peach" type="button" data-theme-choice="peach" aria-label="桃子色" aria-pressed="false"></button>
+        <button class="theme-dot theme-dot--lavender" type="button" data-theme-choice="lavender" aria-label="淡紫色" aria-pressed="false"></button>
+      </div>
+    </div>
+
+    <section class="hero" aria-labelledby="title">
+      <p class="eyebrow"><span>☁️</span> 欢迎路过，真的只是路过</p>
+      <h1 id="title">这都被你<br />发现了</h1>
+      <p class="intro">本来想藏得深一点的。<br />但你都来了，<strong>先坐下歇会儿吧。</strong></p>
+
+      <div class="breathing-scene" aria-label="一颗正在放松的小团子">
+        <div class="breathing-circle"></div>
+        <span class="orbit orbit--one" aria-hidden="true">✦</span>
+        <span class="orbit orbit--two" aria-hidden="true">✿</span>
+        <span class="face" aria-hidden="true">🐻‍❄️</span>
+      </div>
+      <p class="breath-note">吸气……呼气……好了，团子替你呼完了。</p>
+
+      <div class="joke-card" aria-live="polite" aria-atomic="true">
+        <span class="joke-mark" aria-hidden="true">💬</span>
+        <p class="joke-text" id="jokeText">你发现了一个页面。页面也发现了你。<br />现在你们都假装什么也没发生。</p>
+      </div>
+
+      <div class="action-area" id="actionArea">
+        <button class="laugh-button" id="laughButton" type="button">点一下，看看会发生什么</button>
+        <p class="tap-count" id="tapCount">你已经点了 <strong>0</strong> 下。团子表示：很有参与感。</p>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p>今天也辛苦啦，虽然不知道你具体做了什么。</p>
+      <p class="foot-joke" id="footJoke">本页面没有任何实用功能，但情绪价值努力营业中。</p>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var body = document.body;
+      var jokeText = document.getElementById("jokeText");
+      var tapCount = document.getElementById("tapCount");
+      var actionArea = document.getElementById("actionArea");
+      var button = document.getElementById("laughButton");
+      var count = 0;
+
+      var jokes = [
+        "刚刚有一只云路过。它说它不是云，是一团比较有理想的水。",
+        "恭喜，你刚才点了一下屏幕。屏幕也轻轻地，承受住了。",
+        "团子刚才想起一件事。它忘了是什么，但看起来很满足。",
+        "这里原本藏着一个秘密。后来秘密觉得太闷，自己出去了。",
+        "你和这颗按钮已经认识了。它说你人不错，手指也很礼貌。",
+        "给你颁发一朵看不见的小红花。请把它放在看不见的花瓶里。",
+        "生活偶尔像一颗没剥开的橘子。先不管，闻起来还挺香。",
+        "这句话没有重点。重点是你看到这里了，辛苦啦。",
+        "据团子观察，你今天已经很努力了。团子观察得很准，至少它很自信。",
+        "有些事情不用想明白，比如团子为什么长得像团子。",
+        "按钮正在努力工作。它的工作内容是被你按一下。",
+        "通知你一下：你现在正在看一个页面。此通知没有后续。"
+      ];
+      var footJokes = [
+        "本页面没有任何实用功能，但情绪价值努力营业中。",
+        "如果你笑了一下，请不要告诉按钮，它会骄傲。",
+        "团子现在在发呆。它说这叫云端计算。",
+        "今天的任务：对自己好一点。团子的任务：继续圆。",
+        "这里没有出口提示，因为你本来就可以随时离开。记得带走好心情。"
+      ];
+      var emojis = ["🌼", "☁️", "✨", "🍊", "🫧", "🌱", "💛", "🧸"];
+
+      function setTheme(theme) {
+        body.setAttribute("data-theme", theme);
+        var choices = document.querySelectorAll("[data-theme-choice]");
+        choices.forEach(function (choice) {
+          choice.setAttribute("aria-pressed", String(choice.getAttribute("data-theme-choice") === theme));
+        });
+      }
+
+      document.querySelectorAll("[data-theme-choice]").forEach(function (choice) {
+        choice.addEventListener("click", function () {
+          setTheme(choice.getAttribute("data-theme-choice"));
+        });
+      });
+
+      button.addEventListener("click", function () {
+        count += 1;
+        var next = jokes[Math.floor(Math.random() * jokes.length)];
+        jokeText.textContent = next;
+
+        var counterNote = count >= 10
+          ? "你已经点了 " + count + " 下。团子郑重宣布：你是本页的首席按钮体验官。"
+          : "你已经点了 " + count + " 下。团子表示：很有参与感。";
+        tapCount.innerHTML = counterNote.replace(String(count), "<strong>" + count + "</strong>");
+
+        if (count % 10 === 0) {
+          jokeText.textContent = "你已经认真点了 " + count + " 下。团子给你颁发：年度最佳点点点奖。奖品是一份精神上的橘子。";
+        }
+
+        var floaty = document.createElement("span");
+        floaty.className = "floaty";
+        floaty.setAttribute("aria-hidden", "true");
+        floaty.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        floaty.style.left = (10 + Math.random() * 75) + "%";
+        actionArea.appendChild(floaty);
+        window.setTimeout(function () { floaty.remove(); }, 1400);
+      });
+
+      var footJoke = document.getElementById("footJoke");
+      footJoke.textContent = footJokes[Math.floor(Math.random() * footJokes.length)];
+    })();
+  </script>
+</body>
+</html>
